@@ -6,8 +6,10 @@ import {
   StyleSheet, 
   Modal,
   SafeAreaView,
-  StatusBar 
+  StatusBar,
+  Dimensions 
 } from 'react-native';
+import { LineChart } from 'react-native-chart-kit';
 import { useSessionStore } from '../shared/stores/sessionStore';
 import { PokerSession } from '../shared/types';
 import CreateSessionScreen from './CreateSessionScreen';
@@ -80,6 +82,32 @@ export default function SessionsScreen() {
   const totalProfit = sessions.reduce((sum, session) => sum + (session.profit || 0), 0);
   const completedSessions = sessions.filter(s => s.isComplete).length;
 
+  const getChartData = () => {
+    const completedSessionsData = sessions
+      .filter(s => s.isComplete)
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+      .slice(-10); // Last 10 sessions
+
+    if (completedSessionsData.length === 0) {
+      return {
+        labels: ['No Data'],
+        datasets: [{ data: [0] }]
+      };
+    }
+
+    let runningTotal = 0;
+    const labels = completedSessionsData.map((_, index) => `S${index + 1}`);
+    const data = completedSessionsData.map(session => {
+      runningTotal += session.profit || 0;
+      return runningTotal;
+    });
+
+    return {
+      labels,
+      datasets: [{ data }]
+    };
+  };
+
   // Render different screens based on mode
   if (screenMode === 'create') {
     return (
@@ -138,6 +166,36 @@ export default function SessionsScreen() {
           <Text style={styles.createButtonText}>+ Start Session</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Performance Chart */}
+      {completedSessions > 0 && (
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>Performance Trend</Text>
+          <LineChart
+            data={getChartData()}
+            width={Dimensions.get('window').width - 32}
+            height={180}
+            chartConfig={{
+              backgroundColor: '#fff',
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(0, 123, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
+              style: {
+                borderRadius: 12,
+              },
+              propsForDots: {
+                r: '4',
+                strokeWidth: '2',
+                stroke: '#007bff'
+              }
+            }}
+            bezier
+            style={styles.chart}
+          />
+        </View>
+      )}
 
       {/* Quick Stats */}
       <View style={styles.statsContainer}>
@@ -320,5 +378,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
+  },
+  chartContainer: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  chartTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 12,
+  },
+  chart: {
+    borderRadius: 12,
   },
 });

@@ -10,7 +10,15 @@ import {
   RangeRound,
   Location,
   LocationSession,
-  LocationStats
+  LocationStats,
+  DashboardData,
+  FriendActivity,
+  ActivityType,
+  PendingGroupSession,
+  PerformanceSummary,
+  QuickStats,
+  QuickAction,
+  ChartDataPoint
 } from '../types';
 
 /**
@@ -471,4 +479,241 @@ export const mockLocationStats: { [locationId: string]: LocationStats } = {
     avgSessionLength: 4.5,
     favoriteStakes: '0.5/1',
   },
+};
+
+export const mockFriendActivities: FriendActivity[] = [
+  {
+    id: 'activity-1',
+    user: mockOtherUser,
+    type: ActivityType.SESSION_STARTED,
+    message: 'Started a session at MGM Grand',
+    timestamp: new Date('2024-07-26T19:30:00'),
+    location: 'MGM Grand Casino',
+    canJoin: true,
+    sessionId: 'session-friend-1',
+  },
+  {
+    id: 'activity-2',
+    user: {
+      id: 'user-789',
+      email: 'mike.chen@example.com',
+      username: 'mikethefish',
+      firstName: 'Mike',
+      lastName: 'Chen',
+      playingStatus: PlayingStatus.OFFLINE,
+      statusVisibility: StatusVisibility.PUBLIC,
+      showPlayingStatus: true,
+      totalHands: 892,
+      totalSessions: 15,
+      totalWinnings: 1250,
+      createdAt: new Date('2024-02-15'),
+      updatedAt: new Date('2024-07-25'),
+    },
+    type: ActivityType.BIG_WIN,
+    message: 'Won a big pot! +$850 in one hand',
+    timestamp: new Date('2024-07-26T16:45:00'),
+    location: 'Bellagio Casino',
+  },
+  {
+    id: 'activity-3',
+    user: {
+      id: 'user-321',
+      email: 'alex.poker@example.com',
+      username: 'alexraises',
+      firstName: 'Alex',
+      lastName: 'Rodriguez',
+      playingStatus: PlayingStatus.PLAYING,
+      statusVisibility: StatusVisibility.FRIENDS_ONLY,
+      showPlayingStatus: true,
+      totalHands: 2150,
+      totalSessions: 67,
+      totalWinnings: -420,
+      createdAt: new Date('2024-01-20'),
+      updatedAt: new Date('2024-07-26'),
+    },
+    type: ActivityType.JOIN_REQUEST,
+    message: 'Looking for players for home game tonight',
+    timestamp: new Date('2024-07-26T14:20:00'),
+    location: 'Weekly Home Game',
+    canJoin: true,
+  },
+];
+
+export const mockActiveSessions: PokerSession[] = [
+  {
+    id: 'active-session-1',
+    userId: 'user-123',
+    sessionType: SessionType.LIVE_CASINO,
+    venue: 'Bellagio Casino',
+    address: '3600 S Las Vegas Blvd, Las Vegas, NV',
+    initialBuyIn: 500,
+    totalBuyIn: 800,
+    startTime: new Date('2024-07-26T18:00:00'),
+    gameType: "No Limit Hold'em",
+    stakes: '2/5',
+    isActive: true,
+    isComplete: false,
+    updateStatus: true,
+    notifyFriends: true,
+    includeInStats: true,
+    createdAt: new Date('2024-07-26T18:00:00'),
+    updatedAt: new Date('2024-07-26T20:30:00'),
+  },
+];
+
+export const mockPendingGroupSessions: PendingGroupSession[] = [
+  {
+    id: 'pending-1',
+    group: {
+      id: 'group-1',
+      name: 'Friday Night Regulars',
+      description: 'Weekly home game',
+      isPrivate: false,
+      adminId: 'user-456',
+      admin: mockOtherUser,
+      createdAt: new Date('2024-06-01'),
+      updatedAt: new Date('2024-07-25'),
+      memberCount: 8,
+      sessionCount: 12,
+      totalVolume: 25000,
+    },
+    venue: "Mike's House",
+    startTime: new Date('2024-07-26T20:00:00'),
+    playerCount: 6,
+    hasJoined: false,
+    canJoin: true,
+  },
+  {
+    id: 'pending-2',
+    group: {
+      id: 'group-2',
+      name: 'Weekend Warriors',
+      description: 'Casual weekend games',
+      isPrivate: true,
+      adminId: 'user-789',
+      admin: {
+        id: 'user-789',
+        email: 'admin@example.com',
+        username: 'admin',
+        firstName: 'Admin',
+        lastName: 'User',
+        playingStatus: PlayingStatus.OFFLINE,
+        statusVisibility: StatusVisibility.PUBLIC,
+        showPlayingStatus: true,
+        totalHands: 0,
+        totalSessions: 0,
+        totalWinnings: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      createdAt: new Date('2024-05-15'),
+      updatedAt: new Date('2024-07-24'),
+      memberCount: 12,
+      sessionCount: 8,
+      totalVolume: 18500,
+    },
+    venue: 'Commerce Casino',
+    startTime: new Date('2024-07-27T14:00:00'),
+    playerCount: 4,
+    hasJoined: true,
+    canJoin: false,
+  },
+];
+
+export const mockChartData: ChartDataPoint[] = [
+  { date: '7/20', profit: 180, sessions: 1 },
+  { date: '7/21', profit: -50, sessions: 0 },
+  { date: '7/22', profit: -115, sessions: 1 },
+  { date: '7/23', profit: 75, sessions: 0 },
+  { date: '7/24', profit: 220, sessions: 1 },
+  { date: '7/25', profit: 350, sessions: 1 },
+  { date: '7/26', profit: 120, sessions: 1 },
+];
+
+export const mockPerformanceSummary: PerformanceSummary = {
+  last7Days: {
+    sessions: 4,
+    profit: 780,
+    hours: 28.5,
+  },
+  last30Days: {
+    sessions: 12,
+    profit: 1250,
+    hours: 89.5,
+  },
+  currentMonth: {
+    sessions: 8,
+    profit: 920,
+    hours: 62.0,
+  },
+  chartData: mockChartData,
+};
+
+export const mockQuickStats: QuickStats = {
+  totalSessions: 47,
+  totalProfit: 3250,
+  bestMonth: {
+    month: 'June 2024',
+    profit: 1850,
+  },
+  currentStreak: {
+    type: 'winning',
+    count: 3,
+  },
+  favoriteVenue: 'Bellagio Casino',
+  totalHours: 287.5,
+};
+
+export const mockQuickActions: QuickAction[] = [
+  {
+    id: 'start-session',
+    title: 'Start Session',
+    icon: '🎰',
+    color: '#4CAF50',
+    action: () => console.log('Navigate to start session'),
+  },
+  {
+    id: 'view-stats',
+    title: 'View Stats',
+    icon: '📊',
+    color: '#2196F3',
+    action: () => console.log('Navigate to statistics'),
+  },
+  {
+    id: 'my-groups',
+    title: 'My Groups',
+    icon: '👥',
+    color: '#FF9800',
+    action: () => console.log('Navigate to groups'),
+  },
+  {
+    id: 'range-builder',
+    title: 'Range Builder',
+    icon: '🃏',
+    color: '#9C27B0',
+    action: () => console.log('Navigate to range creator'),
+  },
+  {
+    id: 'locations',
+    title: 'Locations',
+    icon: '📍',
+    color: '#795548',
+    action: () => console.log('Navigate to locations'),
+  },
+  {
+    id: 'friends',
+    title: 'Friends',
+    icon: '🤝',
+    color: '#607D8B',
+    action: () => console.log('Navigate to friends'),
+  },
+];
+
+export const mockDashboardData: DashboardData = {
+  recentSessions: mockSessions.slice(0, 3),
+  activeSessions: mockActiveSessions,
+  pendingGroupSessions: mockPendingGroupSessions,
+  friendActivity: mockFriendActivities,
+  performanceSummary: mockPerformanceSummary,
+  quickStats: mockQuickStats,
 };

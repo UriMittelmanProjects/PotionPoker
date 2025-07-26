@@ -4,7 +4,10 @@ import {
   ProfileStats, 
   PlayingStatus, 
   StatusVisibility, 
-  SessionType 
+  SessionType,
+  Player,
+  PlayerRange,
+  RangeRound
 } from '../types';
 
 /**
@@ -190,3 +193,75 @@ export const mockOtherUser: User = {
   createdAt: new Date('2024-03-10'),
   updatedAt: new Date('2024-07-24'),
 };
+
+export const mockPlayerRanges: PlayerRange[] = [
+  {
+    id: 'range-1',
+    userId: 'user-123',
+    playerName: 'Aggressive Regular',
+    round: RangeRound.PREFLOP,
+    label: 'Opening Range UTG',
+    hands: ['AA', 'KK', 'QQ', 'JJ', 'TT', '99', 'AKs', 'AQs', 'AJs', 'AKo', 'AQo'],
+    color: '#4CAF50',
+    notes: 'Tight opening range from early position',
+    createdAt: new Date('2024-07-20'),
+    updatedAt: new Date('2024-07-25'),
+  },
+  {
+    id: 'range-2',
+    userId: 'user-123',
+    playerName: 'Aggressive Regular',
+    round: RangeRound.PREFLOP,
+    label: '3-Bet Range vs CO',
+    hands: ['AA', 'KK', 'QQ', 'JJ', 'AKs', 'AKo', 'A5s', 'A4s'],
+    color: '#F44336',
+    notes: 'Polarized 3-bet range against cutoff opens',
+    createdAt: new Date('2024-07-20'),
+    updatedAt: new Date('2024-07-25'),
+  },
+  {
+    id: 'range-3',
+    userId: 'user-123',
+    playerName: 'Tight Passive Fish',
+    round: RangeRound.PREFLOP,
+    label: 'Calling Range',
+    hands: ['AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77', 'AKo', 'AQo', 'AJo', 'KQo'],
+    color: '#2196F3',
+    notes: 'Very tight calling range, rarely folds these hands',
+    createdAt: new Date('2024-07-18'),
+    updatedAt: new Date('2024-07-22'),
+  },
+];
+
+export const mockPlayers: Player[] = [
+  {
+    id: 'player-1',
+    name: 'Aggressive Regular',
+    ranges: mockPlayerRanges.filter(r => r.playerName === 'Aggressive Regular'),
+    lastUsed: new Date('2024-07-25'),
+  },
+  {
+    id: 'player-2',
+    name: 'Tight Passive Fish',
+    ranges: mockPlayerRanges.filter(r => r.playerName === 'Tight Passive Fish'),
+    lastUsed: new Date('2024-07-22'),
+  },
+  {
+    id: 'player-3',
+    name: 'Loose Aggressive Maniac',
+    ranges: [],
+    lastUsed: new Date('2024-07-15'),
+  },
+  {
+    id: 'player-4',
+    name: 'Balanced Regular',
+    ranges: [],
+    lastUsed: new Date('2024-07-10'),
+  },
+  {
+    id: 'player-5',
+    name: 'Calling Station',
+    ranges: [],
+    lastUsed: new Date('2024-07-08'),
+  },
+];

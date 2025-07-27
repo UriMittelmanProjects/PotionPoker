@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authApi, LoginResponse } from '../services/apiService';
 
 /**
  * User interface representing authenticated user data
@@ -10,8 +11,8 @@ export interface User {
   username: string;
   firstName: string;
   lastName: string;
-  playingStatus?: string;
-  currentLocation?: string;
+  playingStatus: string;
+  currentLocation: string | null;
   statusVisibility: 'public' | 'friends' | 'private';
   totalSessions: number;
   totalWinnings: number;
@@ -59,9 +60,6 @@ type AuthStore = AuthState & AuthActions;
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
-// API base URL - update this to match your backend server
-const API_BASE_URL = 'http://localhost:3000/api';
-
 /**
  * Auth store using Zustand for state management
  * Handles authentication state, token persistence, and auth actions
@@ -81,19 +79,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await authApi.login(email, password);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Invalid credentials');
+      if (!response.success) {
+        throw new Error(response.message || 'Invalid credentials');
       }
 
-      const { token, user } = data.data;
+      const { token, user } = response.data!;
       
       // Store in AsyncStorage
       await AsyncStorage.setItem(TOKEN_KEY, token);
@@ -122,19 +114,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   register: async (userData: RegisterData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      });
+      const response = await authApi.register(userData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+      if (!response.success) {
+        throw new Error(response.message || 'Registration failed');
       }
 
-      const { token, user } = data.data;
+      const { token, user } = response.data!;
       
       // Store in AsyncStorage
       await AsyncStorage.setItem(TOKEN_KEY, token);
@@ -208,16 +194,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   forgotPassword: async (email: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      const response = await authApi.forgotPassword(email);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to send reset email');
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to send reset email');
       }
 
       set({ isLoading: false });
@@ -236,16 +216,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   resetPassword: async (token: string, newPassword: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, newPassword }),
-      });
+      const response = await authApi.resetPassword(token, newPassword);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to reset password');
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to reset password');
       }
 
       set({ isLoading: false });

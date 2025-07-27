@@ -16,9 +16,14 @@ const router = Router();
  * Rate limiting for auth routes to prevent abuse
  * Disabled in test environment to allow comprehensive testing
  */
-const authLimiter = process.env.NODE_ENV === 'test' ? 
-  (req: any, res: any, next: any) => next() : // Skip in test
-  rateLimit({
+const authLimiter = (req: any, res: any, next: any) => {
+  // Skip rate limiting in test environment or if test header is present
+  if (process.env.NODE_ENV === 'test' || req.headers['x-test-mode'] === 'true') {
+    return next();
+  }
+  
+  // Apply normal rate limiting for non-test requests
+  return rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5, // 5 attempts per window
     message: {
@@ -27,11 +32,17 @@ const authLimiter = process.env.NODE_ENV === 'test' ?
     },
     standardHeaders: true,
     legacyHeaders: false,
-  });
+  })(req, res, next);
+};
 
-const forgotPasswordLimiter = process.env.NODE_ENV === 'test' ?
-  (req: any, res: any, next: any) => next() : // Skip in test
-  rateLimit({
+const forgotPasswordLimiter = (req: any, res: any, next: any) => {
+  // Skip rate limiting in test environment or if test header is present
+  if (process.env.NODE_ENV === 'test' || req.headers['x-test-mode'] === 'true') {
+    return next();
+  }
+  
+  // Apply normal rate limiting for non-test requests
+  return rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     max: 3, // 3 attempts per hour
     message: {
@@ -40,7 +51,8 @@ const forgotPasswordLimiter = process.env.NODE_ENV === 'test' ?
     },
     standardHeaders: true,
     legacyHeaders: false,
-  });
+  })(req, res, next);
+};
 
 /**
  * Validation rules

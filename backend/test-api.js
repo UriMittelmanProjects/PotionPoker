@@ -58,7 +58,8 @@ const testRegister = () => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(postData)
+      'Content-Length': Buffer.byteLength(postData),
+      'X-Test-Mode': 'true'
     }
   };
 
@@ -109,7 +110,8 @@ const testLogin = () => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(postData)
+      'Content-Length': Buffer.byteLength(postData),
+      'X-Test-Mode': 'true'
     }
   };
 

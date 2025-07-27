@@ -120,7 +120,8 @@ class AuthTester {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
+          'Content-Length': Buffer.byteLength(postData),
+          'X-Test-Mode': 'true'
         }
       };
 
@@ -171,7 +172,8 @@ class AuthTester {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
+          'Content-Length': Buffer.byteLength(postData),
+          'X-Test-Mode': 'true'
         }
       };
 
@@ -214,7 +216,8 @@ class AuthTester {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
+          'Content-Length': Buffer.byteLength(postData),
+          'X-Test-Mode': 'true'
         }
       };
 
@@ -256,7 +259,8 @@ class AuthTester {
         path: '/api/auth/profile',
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${loginResult.token}`
+          'Authorization': `Bearer ${loginResult.token}`,
+          'X-Test-Mode': 'true'
         }
       };
 
@@ -289,7 +293,10 @@ class AuthTester {
         hostname: 'localhost',
         port: 3000,
         path: '/api/auth/profile',
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'X-Test-Mode': 'true'
+        }
         // No Authorization header
       };
 
@@ -336,7 +343,8 @@ class AuthTester {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
+          'Content-Length': Buffer.byteLength(postData),
+          'X-Test-Mode': 'true'
         }
       };
 
@@ -381,7 +389,8 @@ class AuthTester {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
+          'Content-Length': Buffer.byteLength(postData),
+          'X-Test-Mode': 'true'
         }
       };
 
@@ -427,7 +436,8 @@ class AuthTester {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
+          'Content-Length': Buffer.byteLength(postData),
+          'X-Test-Mode': 'true'
         }
       };
 

@@ -8,6 +8,21 @@ import nodemailer from 'nodemailer';
  * Create email transporter
  */
 const createTransporter = () => {
+  // Check if email is properly configured
+  if (!process.env.SMTP_USER || 
+      !process.env.SMTP_PASS || 
+      process.env.SMTP_USER === 'your-email@gmail.com' ||
+      process.env.SMTP_PASS === 'your-app-password') {
+    
+    // Return a mock transporter for development/testing
+    return {
+      sendMail: async () => {
+        console.log('📧 Email disabled - SMTP not configured properly');
+        return Promise.resolve();
+      }
+    };
+  }
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || '587'),

@@ -59,6 +59,9 @@ type AuthStore = AuthState & AuthActions;
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
+// API base URL - update this to match your backend server
+const API_BASE_URL = 'http://localhost:3000/api';
+
 /**
  * Auth store using Zustand for state management
  * Handles authentication state, token persistence, and auth actions
@@ -78,18 +81,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      // TODO: Replace with actual API call when backend is ready
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        throw new Error(data.message || 'Invalid credentials');
       }
 
-      const { token, user } = await response.json();
+      const { token, user } = data.data;
       
       // Store in AsyncStorage
       await AsyncStorage.setItem(TOKEN_KEY, token);
@@ -118,19 +122,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   register: async (userData: RegisterData) => {
     set({ isLoading: true, error: null });
     try {
-      // TODO: Replace with actual API call when backend is ready
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        throw new Error(data.message || 'Registration failed');
       }
 
-      const { token, user } = await response.json();
+      const { token, user } = data.data;
       
       // Store in AsyncStorage
       await AsyncStorage.setItem(TOKEN_KEY, token);
@@ -204,15 +208,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   forgotPassword: async (email: string) => {
     set({ isLoading: true, error: null });
     try {
-      // TODO: Replace with actual API call when backend is ready
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to send reset email');
+        throw new Error(data.message || 'Failed to send reset email');
       }
 
       set({ isLoading: false });
@@ -231,15 +236,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   resetPassword: async (token: string, newPassword: string) => {
     set({ isLoading: true, error: null });
     try {
-      // TODO: Replace with actual API call when backend is ready
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to reset password');
+        throw new Error(data.message || 'Failed to reset password');
       }
 
       set({ isLoading: false });

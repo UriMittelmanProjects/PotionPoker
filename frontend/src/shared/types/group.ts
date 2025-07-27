@@ -1,18 +1,11 @@
 import { SessionType } from './session';
+import { User } from './user';
 
 export enum GroupRole {
   ADMIN = 'ADMIN',
   MEMBER = 'MEMBER'
 }
 
-export interface User {
-  id: string;
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  displayName?: string;
-}
 
 export interface Group {
   id: string;

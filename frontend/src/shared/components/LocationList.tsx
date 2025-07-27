@@ -124,12 +124,12 @@ export default function LocationList({
         ]}
         renderItem={({ item }) => {
           if (item.type === 'header') {
-            return renderSectionHeader(item.title, item.count);
+            return renderSectionHeader((item as any).title, (item as any).count);
           }
           return renderLocationItem({ item: item as Location });
         }}
         keyExtractor={(item, index) => 
-          item.type === 'header' ? `header-${index}` : `location-${item.id}`
+          item.type === 'header' ? `header-${index}` : `location-${(item as any).id}`
         }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}

@@ -82,7 +82,15 @@ const mockUsers: User[] = [
     username: 'john_poker',
     firstName: 'John',
     lastName: 'Smith',
-    displayName: 'John S.'
+    displayName: 'John S.',
+    playingStatus: 'OFFLINE' as any,
+    statusVisibility: 'PUBLIC' as any,
+    showPlayingStatus: true,
+    totalHands: 1250,
+    totalSessions: 15,
+    totalWinnings: 2100,
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: 'user2', 
@@ -90,7 +98,15 @@ const mockUsers: User[] = [
     username: 'jane_cards',
     firstName: 'Jane',
     lastName: 'Doe',
-    displayName: 'Jane D.'
+    displayName: 'Jane D.',
+    playingStatus: 'OFFLINE' as any,
+    statusVisibility: 'PUBLIC' as any,
+    showPlayingStatus: true,
+    totalHands: 980,
+    totalSessions: 12,
+    totalWinnings: 1400,
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: 'user3',
@@ -98,7 +114,15 @@ const mockUsers: User[] = [
     username: 'mike_bluff',
     firstName: 'Mike',
     lastName: 'Johnson',
-    displayName: 'Mike J.'
+    displayName: 'Mike J.',
+    playingStatus: 'ONLINE' as any,
+    statusVisibility: 'PUBLIC' as any,
+    showPlayingStatus: true,
+    totalHands: 750,
+    totalSessions: 10,
+    totalWinnings: 850,
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: 'user4',
@@ -106,7 +130,15 @@ const mockUsers: User[] = [
     username: 'sarah_ace',
     firstName: 'Sarah',
     lastName: 'Wilson',
-    displayName: 'Sarah W.'
+    displayName: 'Sarah W.',
+    playingStatus: 'OFFLINE' as any,
+    statusVisibility: 'FRIENDS_ONLY' as any,
+    showPlayingStatus: false,
+    totalHands: 650,
+    totalSessions: 8,
+    totalWinnings: 720,
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 

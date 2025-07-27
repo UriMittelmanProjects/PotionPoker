@@ -74,7 +74,7 @@ export default function SessionDetailScreen({
     duration: session.duration,
   });
 
-  const currentProfit = (editData.cashOut || 0) - editData.totalBuyIn;
+  const currentProfit = (editData.cashOut || 0) - (editData.totalBuyIn || 0);
   const originalProfit = session.profit || 0;
 
   const handleSave = async () => {
@@ -235,7 +235,7 @@ export default function SessionDetailScreen({
             {isEditing ? (
               <TextInput
                 style={styles.input}
-                value={editData.totalBuyIn.toString()}
+                value={(editData.totalBuyIn || 0).toString()}
                 onChangeText={(text) => {
                   const amount = parseFloat(text) || 0;
                   setEditData(prev => ({ ...prev, totalBuyIn: amount }));

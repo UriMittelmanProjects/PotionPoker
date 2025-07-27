@@ -163,7 +163,7 @@ export default function PlayerSelector({
           data={flatListData}
           renderItem={renderItem}
           keyExtractor={(item) => 
-            item.type === 'header' ? `header-${item.letter}` : `player-${item.id}`
+            item.type === 'header' ? `header-${(item as any).letter}` : `player-${(item as any).id}`
           }
           showsVerticalScrollIndicator={false}
           style={styles.playerList}

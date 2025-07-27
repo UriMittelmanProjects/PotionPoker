@@ -115,7 +115,7 @@ export default function RangeGrid({
       styles.cellText,
       {
         color: isSelected ? '#fff' : '#333',
-        fontWeight: isSelected ? 'bold' : '500',
+        fontWeight: isSelected ? ('bold' as const) : ('500' as const),
         fontSize: cellSize * 0.2,
       }
     ];

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Alert, View, Text, TouchableOpacity } from 'react-native';
 import ActivityFeed from '../shared/components/ActivityFeed';
 import ActiveSessions from '../shared/components/ActiveSessions';
 import QuickActions from '../shared/components/QuickActions';
-import PerformanceSummary from '../shared/components/PerformanceSummary';
+import SwipeableCharts from '../shared/components/SwipeableCharts';
 import PendingGroupSessions from '../shared/components/PendingGroupSessions';
+import { useSessionStore } from '../shared/stores/sessionStore';
 import { 
   DashboardData, 
   FriendActivity, 
@@ -28,6 +29,11 @@ import {
 export default function HomeScreen() {
   const [dashboardData] = useState<DashboardData>(mockDashboardData);
   const [quickStats] = useState<QuickStats>(mockQuickStats);
+  const { sessions, fetchSessions } = useSessionStore();
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
 
   const handleActivityPress = (activity: FriendActivity) => {
     if (activity.canJoin) {
@@ -112,10 +118,9 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Performance Summary */}
-        <PerformanceSummary
-          summary={dashboardData.performanceSummary}
-          onViewDetails={handleViewPerformanceDetails}
+        {/* Swipeable Charts */}
+        <SwipeableCharts
+          sessions={sessions}
         />
 
         {/* Quick Actions */}

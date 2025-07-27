@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
-import TabNavigator from './src/navigation/TabNavigator';
+import AppNavigator from './src/navigation/AppNavigator';
+import 'react-native-gesture-handler';
 
 export default function App() {
   return (
     <NavigationContainer>
-      <TabNavigator />
+      <AppNavigator />
       <StatusBar style="auto" />
     </NavigationContainer>
   );

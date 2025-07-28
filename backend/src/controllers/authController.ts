@@ -182,6 +182,31 @@ export const login = async (req: Request<{}, AuthResponse, LoginRequest>, res: R
 };
 
 /**
+ * Logout user (JWT is stateless, so this mainly serves for logging/analytics)
+ */
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // For JWT-based auth, we don't need to do much server-side
+    // The client will remove the token from storage
+    // This endpoint mainly serves for:
+    // - Logging logout events
+    // - Future token blacklisting (if implemented)
+    // - Consistency with auth flow
+    
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+/**
  * Send forgot password email
  */
 export const forgotPassword = async (req: Request<{}, {}, ForgotPasswordRequest>, res: Response): Promise<void> => {

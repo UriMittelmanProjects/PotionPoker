@@ -147,8 +147,24 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    */
   logout: async () => {
     try {
+      console.log('🚪 Starting logout process...');
+      
+      // Call backend logout endpoint (optional for JWT, but good practice)
+      try {
+        const response = await authApi.logout();
+        if (response.success) {
+          console.log('🌐 Backend logout successful');
+        } else {
+          console.log('⚠️ Backend logout failed, continuing with local logout');
+        }
+      } catch (backendError) {
+        console.log('⚠️ Backend logout error, continuing with local logout:', backendError);
+        // Continue with local logout even if backend fails
+      }
+      
       // Clear AsyncStorage
       await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
+      console.log('🗑️ Cleared AsyncStorage tokens');
       
       // Reset state
       set({ 
@@ -157,8 +173,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isAuthenticated: false,
         error: null 
       });
+      console.log('✅ Auth state reset, isAuthenticated now false');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('❌ Logout error:', error);
+      throw error; // Re-throw so ProfileScreen can handle it
     }
   },
 

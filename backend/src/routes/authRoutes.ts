@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import { 
   register, 
   login, 
+  logout,
   forgotPassword, 
   resetPassword, 
   getProfile 
@@ -119,6 +120,9 @@ router.post('/register', authLimiter, registerValidation, register);
 
 // POST /api/auth/login - Login user
 router.post('/login', authLimiter, loginValidation, login);
+
+// POST /api/auth/logout - Logout user (optional, as JWT is stateless)
+router.post('/logout', authenticateToken, logout);
 
 // POST /api/auth/forgot-password - Send password reset email
 router.post('/forgot-password', forgotPasswordLimiter, forgotPasswordValidation, forgotPassword);

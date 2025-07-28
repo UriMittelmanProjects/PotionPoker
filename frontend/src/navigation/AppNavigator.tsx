@@ -20,6 +20,16 @@ export default function AppNavigator() {
   }, [loadStoredAuth]);
 
   /**
+   * Debug authentication state changes
+   */
+  useEffect(() => {
+    console.log('🔄 AppNavigator: Auth state changed:', {
+      isAuthenticated,
+      isLoading
+    });
+  }, [isAuthenticated, isLoading]);
+
+  /**
    * Show loading spinner while checking authentication status
    */
   if (isLoading) {

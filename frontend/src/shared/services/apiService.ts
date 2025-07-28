@@ -253,4 +253,11 @@ export const authApi = {
   updateProfile: async (userData: Partial<LoginResponse['user']>): Promise<ApiResponse<LoginResponse['user']>> => {
     return apiClient.put<LoginResponse['user']>('/auth/profile', userData, { requireAuth: true });
   },
+
+  /**
+   * Logout user
+   */
+  logout: async (): Promise<ApiResponse<{ message: string }>> => {
+    return apiClient.post<{ message: string }>('/auth/logout', {}, { requireAuth: true });
+  },
 };

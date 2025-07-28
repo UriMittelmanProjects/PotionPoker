@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectDatabase, disconnectDatabase } from './utils/database';
 import authRoutes from './routes/authRoutes';
+import sessionRoutes from './routes/sessionRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -40,6 +41,7 @@ app.get('/health', (req, res) => {
  * API routes
  */
 app.use('/api/auth', authRoutes);
+app.use('/api/sessions', sessionRoutes);
 
 /**
  * 404 handler for unknown routes

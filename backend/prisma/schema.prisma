@@ -31,5 +31,63 @@ model User {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  // Relations
+  sessions         PokerSession[]
+
   @@map("users")
+}
+
+model PokerSession {
+  id           String   @id @default(cuid())
+  userId       String
+  sessionType  String   // "live_casino", "home_game", "online", "other"
+  venue        String?  // Casino/venue name
+  address      String?  // Full address
+  latitude     Float?   // For map display
+  longitude    Float?   // For map display
+  
+  // Financial data
+  totalBuyIn   Float    @default(0.0)  // Total buy-ins for session
+  cashOut      Float?   // Final cash-out amount
+  profit       Float?   // Calculated: cashOut - totalBuyIn
+  
+  // Session details
+  gameType     String?  // "NLH", "PLO", "Mixed", etc.
+  stakes       String?  // "1/2", "2/5", etc.
+  handsPlayed  Int?     // Number of hands
+  notes        String?  // Session notes with @ mentions
+  
+  // Timing
+  startTime    DateTime @default(now())
+  endTime      DateTime?
+  duration     Int?     // Duration in minutes
+  
+  // Status
+  isActive     Boolean  @default(true)   // Active session vs completed
+  isComplete   Boolean  @default(false)  // Properly ended session
+  
+  // Settings
+  updateStatus Boolean  @default(false)  // Update playing status?
+  notifyFriends Boolean @default(false) // Notify friends?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  buyIns       BuyIn[]  // Multiple buy-ins per session
+
+  @@map("poker_sessions")
+}
+
+model BuyIn {
+  id        String   @id @default(cuid())
+  sessionId String
+  amount    Float    // Buy-in amount
+  timestamp DateTime @default(now())
+  
+  // Relations
+  session   PokerSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("buy_ins")
 }

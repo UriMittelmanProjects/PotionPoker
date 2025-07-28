@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
 import { verifyToken } from '../utils/jwt';
 import { JwtPayload } from '../types/auth';
 
@@ -68,4 +69,27 @@ export const optionalAuth = (
     // Continue without authentication if token is invalid
     next();
   }
+};
+
+/**
+ * Validation middleware
+ * Checks for validation errors from express-validator
+ */
+export const validateRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const errors = validationResult(req);
+  
+  if (!errors.isEmpty()) {
+    res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array()
+    });
+    return;
+  }
+  
+  next();
 };

@@ -24,6 +24,12 @@ class TestRunner {
         file: 'test-auth-routes.js',
         description: 'Tests authentication API endpoints with rate limiting bypass',
         requiresServer: true
+      },
+      {
+        name: 'Session Management Tests',
+        file: 'test-sessions.js',
+        description: 'Tests poker session CRUD operations, buy-ins, and statistics',
+        requiresServer: true
       }
     ];
     this.results = {};
@@ -226,6 +232,7 @@ class TestRunner {
       console.log('🔒 Authentication system is fully functional and secure');
       console.log('📊 Database operations are working correctly');
       console.log('🔐 JWT and security features are properly implemented');
+      console.log('🎯 Session management and poker tracking is operational');
       console.log('\n✨ Ready for production deployment!');
     } else {
       console.log('\n🔧 Some tests failed. Please review the detailed logs above.');
@@ -237,6 +244,7 @@ class TestRunner {
     console.log('   • Comprehensive database operation testing');
     console.log('   • JWT security and token validation');
     console.log('   • Authentication flow end-to-end testing');
+    console.log('   • Poker session CRUD operations and statistics');
     console.log('   • Automatic test data cleanup');
   }
 }

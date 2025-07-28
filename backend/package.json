@@ -14,13 +14,15 @@
     "test": "node run-all-tests.js",
     "test:auth": "node test-auth-routes.js",
     "test:db": "node test-database.js",
-    "test:jwt": "node test-jwt.js"
+    "test:jwt": "node test-jwt.js",
+    "test:sessions": "node test-sessions.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.12.0",
+    "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",

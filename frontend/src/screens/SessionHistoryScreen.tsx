@@ -62,12 +62,18 @@ const formatDuration = (minutes?: number): string => {
   return `${mins}m`;
 };
 
-const formatDate = (date: Date): string => {
+const formatDate = (date: Date | string): string => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid Date';
+  }
+  
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  }).format(date);
+  }).format(dateObj);
 };
 
 interface SessionCardProps {

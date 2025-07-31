@@ -122,12 +122,14 @@ export const getUserSessions = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: sessions,
-      pagination: {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        total,
-        pages: Math.ceil(total / parseInt(limit as string))
+      data: {
+        sessions,
+        pagination: {
+          page: parseInt(page as string),
+          limit: parseInt(limit as string),
+          total,
+          totalPages: Math.ceil(total / parseInt(limit as string))
+        }
       }
     });
   } catch (error) {

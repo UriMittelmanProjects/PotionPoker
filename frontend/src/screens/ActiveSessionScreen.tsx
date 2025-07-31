@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { PokerSession, EndSessionRequest } from '../shared/types';
 import { useSessionStore } from '../shared/stores/sessionStore';
+import { formatCurrency, formatDuration } from '../shared/utils/dateUtils';
 
 interface ActiveSessionScreenProps {
   session: PokerSession;
@@ -17,38 +18,16 @@ interface ActiveSessionScreenProps {
   onSessionEnded?: () => void;
 }
 
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
-};
-
-const formatDuration = (startTime: Date, endTime?: Date): string => {
-  const now = endTime || new Date();
-  const diffInMs = now.getTime() - startTime.getTime();
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  
-  const hours = Math.floor(diffInMinutes / 60);
-  const minutes = diffInMinutes % 60;
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
-};
 
 export default function ActiveSessionScreen({ 
   session, 
   onClose, 
   onSessionEnded 
 }: ActiveSessionScreenProps) {
-  const { endSession, updateSession, isUpdating, error } = useSessionStore();
+  const { endSession, updateSession, addBuyIn, isUpdating, error } = useSessionStore();
   
   const [endData, setEndData] = useState<EndSessionRequest>({
-    totalBuyIn: session.totalBuyIn,
     cashOut: 0,
-    duration: undefined,
     handsPlayed: session.handsPlayed,
     notes: session.notes || '',
   });
@@ -65,21 +44,23 @@ export default function ActiveSessionScreen({
     return () => clearInterval(interval);
   }, []);
 
-  const currentProfit = endData.cashOut - endData.totalBuyIn;
+  const currentProfit = endData.cashOut - session.totalBuyIn;
   const currentDuration = formatDuration(session.startTime, currentTime);
 
-  const handleAddBuyIn = () => {
+  const handleAddBuyIn = async () => {
     const amount = parseFloat(additionalBuyIn);
     if (isNaN(amount) || amount <= 0) {
       Alert.alert('Invalid Amount', 'Please enter a valid buy-in amount');
       return;
     }
 
-    setEndData(prev => ({
-      ...prev,
-      totalBuyIn: prev.totalBuyIn + amount,
-    }));
-    setAdditionalBuyIn('');
+    try {
+      await addBuyIn(session.id, { amount });
+      setAdditionalBuyIn('');
+      Alert.alert('Success', 'Buy-in added successfully');
+    } catch (err) {
+      Alert.alert('Error', 'Failed to add buy-in. Please try again.');
+    }
   };
 
   const handleEndSession = async () => {
@@ -88,14 +69,8 @@ export default function ActiveSessionScreen({
       return;
     }
 
-    // Calculate actual duration in minutes
-    const actualDuration = Math.floor(
-      (new Date().getTime() - session.startTime.getTime()) / (1000 * 60)
-    );
-
     const finalEndData = {
       ...endData,
-      duration: endData.duration || actualDuration,
     };
 
     Alert.alert(
@@ -123,7 +98,6 @@ export default function ActiveSessionScreen({
   const handleUpdateSession = async () => {
     try {
       await updateSession(session.id, {
-        totalBuyIn: endData.totalBuyIn,
         handsPlayed: endData.handsPlayed,
         notes: endData.notes,
       });
@@ -176,7 +150,7 @@ export default function ActiveSessionScreen({
           <Text style={styles.sectionTitle}>Buy-ins</Text>
           <View style={styles.buyInContainer}>
             <Text style={styles.totalBuyIn}>
-              Total: {formatCurrency(endData.totalBuyIn)}
+              Total: {formatCurrency(session.totalBuyIn)}
             </Text>
             
             <View style={styles.addBuyInContainer}>
@@ -262,11 +236,10 @@ export default function ActiveSessionScreen({
             <Text style={styles.inputLabel}>Duration Override</Text>
             <TextInput
               style={styles.input}
-              placeholder={`Auto-calculated: ${Math.floor((new Date().getTime() - session.startTime.getTime()) / (1000 * 60))} minutes`}
-              value={endData.duration?.toString() || ''}
+              placeholder={`Auto-calculated: ${Math.floor((new Date().getTime() - new Date(session.startTime).getTime()) / (1000 * 60))} minutes`}
+              value=""
               onChangeText={(text) => {
-                const duration = text ? parseInt(text, 10) : undefined;
-                setEndData(prev => ({ ...prev, duration }));
+                // Duration is handled by backend
               }}
               keyboardType="numeric"
             />

@@ -1,8 +1,7 @@
 const { spawn } = require('child_process');
-const path = require('path');
 
 // Start the development server
-const server = spawn('node', ['-r', 'ts-node/register', 'src/index.ts'], {
+const server = spawn('npx', ['ts-node', 'src/index.ts'], {
   stdio: 'inherit',
   env: { ...process.env, NODE_ENV: 'development' }
 });

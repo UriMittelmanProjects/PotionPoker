@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import { Server } from 'http';
 import { connectDatabase, disconnectDatabase } from './utils/database';
 import authRoutes from './routes/authRoutes';
 import sessionRoutes from './routes/sessionRoutes';
@@ -12,6 +13,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+let server: Server;
 
 /**
  * Middleware setup
@@ -75,11 +77,13 @@ const startServer = async () => {
     await connectDatabase();
     
     // Start HTTP server
-    app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:8081'}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
+    
+    return server;
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
@@ -91,15 +95,47 @@ const startServer = async () => {
  */
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
+  if (server) {
+    server.close(() => {
+      console.log('HTTP server closed');
+    });
+  }
   await disconnectDatabase();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
+  if (server) {
+    server.close(() => {
+      console.log('HTTP server closed');
+    });
+  }
   await disconnectDatabase();
   process.exit(0);
 });
 
 // Start the server
-startServer();
+startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});
+
+// Handle uncaught exceptions (after server starts)
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  if (server) {
+    server.close(() => process.exit(1));
+  } else {
+    process.exit(1);
+  }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  if (server) {
+    server.close(() => process.exit(1));
+  } else {
+    process.exit(1);
+  }
+});

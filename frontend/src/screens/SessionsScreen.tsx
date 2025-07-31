@@ -77,8 +77,8 @@ export default function SessionsScreen() {
     }).format(amount);
   };
 
-  const totalProfit = sessions.reduce((sum, session) => sum + (session.profit || 0), 0);
-  const completedSessions = sessions.filter(s => s.isComplete).length;
+  const totalProfit = sessions?.reduce((sum, session) => sum + (session.profit || 0), 0) || 0;
+  const completedSessions = sessions?.filter(s => s.isComplete).length || 0;
 
   // Render different screens based on mode
   if (screenMode === 'create') {

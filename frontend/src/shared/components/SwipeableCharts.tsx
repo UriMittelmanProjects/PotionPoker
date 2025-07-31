@@ -42,6 +42,10 @@ export default function SwipeableCharts({ sessions }: SwipeableChartsProps) {
   const timePeriods: TimePeriod[] = ['1W', '1M', '3M', '1Y', 'ALL'];
 
   const filterSessionsByPeriod = (sessions: PokerSession[], period: TimePeriod): PokerSession[] => {
+    if (!sessions || !Array.isArray(sessions)) {
+      return [];
+    }
+    
     const now = new Date();
     let startDate: Date;
 

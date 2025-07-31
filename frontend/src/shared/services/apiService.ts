@@ -261,3 +261,108 @@ export const authApi = {
     return apiClient.post<{ message: string }>('/auth/logout', {}, { requireAuth: true });
   },
 };
+
+/**
+ * Session API service functions
+ */
+import { 
+  PokerSession, 
+  CreateSessionRequest, 
+  EndSessionRequest, 
+  UpdateSessionRequest,
+  LocationSuggestion,
+  SessionStats 
+} from '../types/session';
+
+export interface SessionsResponse {
+  sessions: PokerSession[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface BuyInData {
+  amount: number;
+}
+
+export interface EndSessionData {
+  cashOut: number;
+  handsPlayed?: number;
+  notes?: string;
+}
+
+/**
+ * Session API service
+ */
+export const sessionApi = {
+  /**
+   * Create new session
+   */
+  createSession: async (sessionData: CreateSessionRequest): Promise<ApiResponse<PokerSession>> => {
+    return apiClient.post<PokerSession>('/sessions', sessionData, { requireAuth: true });
+  },
+
+  /**
+   * Get user's sessions with pagination
+   */
+  getSessions: async (page: number = 1, limit: number = 10, active?: boolean): Promise<ApiResponse<SessionsResponse>> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(active !== undefined && { active: active.toString() })
+    });
+    return apiClient.get<SessionsResponse>(`/sessions?${params}`, { requireAuth: true });
+  },
+
+  /**
+   * Get specific session
+   */
+  getSession: async (sessionId: string): Promise<ApiResponse<PokerSession>> => {
+    return apiClient.get<PokerSession>(`/sessions/${sessionId}`, { requireAuth: true });
+  },
+
+  /**
+   * Update session
+   */
+  updateSession: async (sessionId: string, updateData: UpdateSessionRequest): Promise<ApiResponse<PokerSession>> => {
+    return apiClient.put<PokerSession>(`/sessions/${sessionId}`, updateData, { requireAuth: true });
+  },
+
+  /**
+   * Add buy-in to session
+   */
+  addBuyIn: async (sessionId: string, buyInData: BuyInData): Promise<ApiResponse<PokerSession>> => {
+    return apiClient.post<PokerSession>(`/sessions/${sessionId}/buyin`, buyInData, { requireAuth: true });
+  },
+
+  /**
+   * End session
+   */
+  endSession: async (sessionId: string, endData: EndSessionData): Promise<ApiResponse<PokerSession>> => {
+    return apiClient.post<PokerSession>(`/sessions/${sessionId}/end`, endData, { requireAuth: true });
+  },
+
+  /**
+   * Delete session
+   */
+  deleteSession: async (sessionId: string): Promise<ApiResponse<{ message: string }>> => {
+    return apiClient.delete<{ message: string }>(`/sessions/${sessionId}`, { requireAuth: true });
+  },
+
+  /**
+   * Get location suggestions
+   */
+  getLocationSuggestions: async (): Promise<ApiResponse<LocationSuggestion[]>> => {
+    return apiClient.get<LocationSuggestion[]>('/sessions/location-suggestions', { requireAuth: true });
+  },
+
+  /**
+   * Get session statistics
+   */
+  getSessionStats: async (): Promise<ApiResponse<SessionStats>> => {
+    return apiClient.get<SessionStats>('/sessions/stats', { requireAuth: true });
+  },
+};

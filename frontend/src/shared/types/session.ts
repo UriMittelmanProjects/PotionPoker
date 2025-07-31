@@ -1,8 +1,8 @@
 export enum SessionType {
-  LIVE_CASINO = 'LIVE_CASINO',
-  HOME_GAME = 'HOME_GAME',
-  ONLINE = 'ONLINE',
-  OTHER = 'OTHER'
+  LIVE_CASINO = 'live_casino',
+  HOME_GAME = 'home_game',
+  ONLINE = 'online',
+  OTHER = 'other'
 }
 
 export enum PlayingStatus {
@@ -11,26 +11,32 @@ export enum PlayingStatus {
   PLAYING = 'PLAYING'
 }
 
+export interface BuyIn {
+  id: string;
+  sessionId: string;
+  amount: number;
+  timestamp: string;
+}
+
 export interface PokerSession {
   id: string;
   userId: string;
   
   // Session Details
-  sessionType: SessionType;
+  sessionType: string;
   venue?: string;
   address?: string;
   latitude?: number;
   longitude?: number;
   
   // Financial Tracking
-  initialBuyIn?: number;
   totalBuyIn: number;
   cashOut?: number;
   profit?: number;
   
   // Session Timing
-  startTime: Date;
-  endTime?: Date;
+  startTime: string;
+  endTime?: string;
   duration?: number; // in minutes
   
   // Game Details
@@ -44,27 +50,29 @@ export interface PokerSession {
   isComplete: boolean;
   updateStatus: boolean;
   notifyFriends: boolean;
-  includeInStats: boolean;
   
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  buyIns: BuyIn[];
 }
 
 export interface CreateSessionRequest {
   sessionType: SessionType;
   venue?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   initialBuyIn?: number;
   gameType?: string;
   stakes?: string;
+  handsPlayed?: number;
+  notes?: string;
   updateStatus?: boolean;
   notifyFriends?: boolean;
 }
 
 export interface EndSessionRequest {
-  totalBuyIn: number;
   cashOut: number;
-  duration?: number;
   handsPlayed?: number;
   notes?: string;
 }
@@ -72,20 +80,21 @@ export interface EndSessionRequest {
 export interface UpdateSessionRequest {
   venue?: string;
   address?: string;
-  totalBuyIn?: number;
-  cashOut?: number;
+  latitude?: number;
+  longitude?: number;
   gameType?: string;
   stakes?: string;
   handsPlayed?: number;
   notes?: string;
-  duration?: number;
+  updateStatus?: boolean;
+  notifyFriends?: boolean;
 }
 
 export interface LocationSuggestion {
   venue: string;
   address?: string;
-  sessionType: SessionType;
-  usageCount: number;
+  sessionType: string;
+  sessionCount: number;
 }
 
 export interface SessionFilter {
@@ -99,11 +108,15 @@ export interface SessionFilter {
 
 export interface SessionStats {
   totalSessions: number;
-  totalWinnings: number;
-  totalHours: number;
-  hourlyRate: number;
+  completedSessions: number;
+  activeSessions: number;
+  totalBuyIns: number;
+  totalCashOuts: number;
+  totalProfit: number;
+  averageProfit: number;
   biggestWin: number;
   biggestLoss: number;
-  winRate: number;
-  avgSessionLength: number;
+  averageSessionLength: number;
+  totalHoursPlayed: number;
+  hourlyRate: number;
 }

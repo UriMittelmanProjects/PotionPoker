@@ -92,7 +92,7 @@ export default function LocationSuggestions({
           
           <View style={styles.usageContainer}>
             <Text style={styles.usageText}>
-              Used {suggestion.usageCount} time{suggestion.usageCount > 1 ? 's' : ''}
+              Used {suggestion.sessionCount} time{suggestion.sessionCount > 1 ? 's' : ''}
             </Text>
           </View>
         </TouchableOpacity>

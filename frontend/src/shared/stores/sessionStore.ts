@@ -9,6 +9,7 @@ import {
   SessionStats,
   SessionType 
 } from '../types';
+import { sessionApi, BuyInData, EndSessionData } from '../services/apiService';
 
 interface SessionState {
   // Data
@@ -29,8 +30,10 @@ interface SessionState {
   createSession: (sessionData: CreateSessionRequest) => Promise<void>;
   endSession: (sessionId: string, endData: EndSessionRequest) => Promise<void>;
   updateSession: (sessionId: string, updateData: UpdateSessionRequest) => Promise<void>;
+  addBuyIn: (sessionId: string, buyInData: BuyInData) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
-  fetchSessions: (filter?: SessionFilter) => Promise<void>;
+  fetchSessions: (page?: number, limit?: number, active?: boolean) => Promise<void>;
+  fetchSession: (sessionId: string) => Promise<void>;
   fetchActiveSession: () => Promise<void>;
   fetchLocationSuggestions: () => Promise<void>;
   fetchSessionStats: () => Promise<void>;
@@ -38,214 +41,10 @@ interface SessionState {
   reset: () => void;
 }
 
-// Mock data for development
-const mockSessions: PokerSession[] = [
-  {
-    id: '1',
-    userId: 'user1',
-    sessionType: SessionType.LIVE_CASINO,
-    venue: 'Bellagio Casino',
-    address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109',
-    latitude: 36.1126,
-    longitude: -115.1767,
-    totalBuyIn: 500,
-    cashOut: 750,
-    profit: 250,
-    startTime: new Date('2025-01-20T20:00:00'),
-    endTime: new Date('2025-01-21T02:30:00'),
-    duration: 390,
-    gameType: "No Limit Hold'em",
-    stakes: '2/5',
-    handsPlayed: 185,
-    notes: 'Great table dynamics, very profitable session',
-    isActive: false,
-    isComplete: true,
-    updateStatus: true,
-    notifyFriends: true,
-    includeInStats: true,
-    createdAt: new Date('2025-01-20T20:00:00'),
-    updatedAt: new Date('2025-01-21T02:30:00')
-  },
-  {
-    id: '2',
-    userId: 'user1',
-    sessionType: SessionType.HOME_GAME,
-    venue: "John's Home Game",
-    address: '123 Poker Street, Austin, TX',
-    totalBuyIn: 200,
-    cashOut: 150,
-    profit: -50,
-    startTime: new Date('2025-01-18T19:00:00'),
-    endTime: new Date('2025-01-18T23:45:00'),
-    duration: 285,
-    gameType: "No Limit Hold'em",
-    stakes: '1/2',
-    handsPlayed: 95,
-    notes: 'Fun social game with friends',
-    isActive: false,
-    isComplete: true,
-    updateStatus: true,
-    notifyFriends: false,
-    includeInStats: true,
-    createdAt: new Date('2025-01-18T19:00:00'),
-    updatedAt: new Date('2025-01-18T23:45:00')
-  },
-  {
-    id: '3',
-    userId: 'user1',
-    sessionType: SessionType.LIVE_CASINO,
-    venue: 'Commerce Casino',
-    address: '6131 Telegraph Rd, Commerce, CA 90040',
-    totalBuyIn: 300,
-    cashOut: 480,
-    profit: 180,
-    startTime: new Date('2025-01-15T18:30:00'),
-    endTime: new Date('2025-01-16T01:15:00'),
-    duration: 405,
-    gameType: "No Limit Hold'em",
-    stakes: '1/3',
-    handsPlayed: 142,
-    notes: 'Solid session, good reads on opponents',
-    isActive: false,
-    isComplete: true,
-    updateStatus: true,
-    notifyFriends: true,
-    includeInStats: true,
-    createdAt: new Date('2025-01-15T18:30:00'),
-    updatedAt: new Date('2025-01-16T01:15:00')
-  },
-  {
-    id: '4',
-    userId: 'user1',
-    sessionType: SessionType.ONLINE,
-    venue: 'PokerStars',
-    totalBuyIn: 150,
-    cashOut: 85,
-    profit: -65,
-    startTime: new Date('2025-01-12T21:00:00'),
-    endTime: new Date('2025-01-12T23:30:00'),
-    duration: 150,
-    gameType: "No Limit Hold'em",
-    stakes: '0.50/1.00',
-    handsPlayed: 180,
-    notes: 'Bad run of cards, variance',
-    isActive: false,
-    isComplete: true,
-    updateStatus: false,
-    notifyFriends: false,
-    includeInStats: true,
-    createdAt: new Date('2025-01-12T21:00:00'),
-    updatedAt: new Date('2025-01-12T23:30:00')
-  },
-  {
-    id: '5',
-    userId: 'user1',
-    sessionType: SessionType.LIVE_CASINO,
-    venue: 'Aria Casino',
-    address: '3730 S Las Vegas Blvd, Las Vegas, NV 89158',
-    totalBuyIn: 600,
-    cashOut: 920,
-    profit: 320,
-    startTime: new Date('2025-01-08T19:00:00'),
-    endTime: new Date('2025-01-09T03:45:00'),
-    duration: 525,
-    gameType: "No Limit Hold'em",
-    stakes: '2/5',
-    handsPlayed: 205,
-    notes: 'Great tournament-style play, hit some big hands',
-    isActive: false,
-    isComplete: true,
-    updateStatus: true,
-    notifyFriends: true,
-    includeInStats: true,
-    createdAt: new Date('2025-01-08T19:00:00'),
-    updatedAt: new Date('2025-01-09T03:45:00')
-  },
-  {
-    id: '6',
-    userId: 'user1',
-    sessionType: SessionType.HOME_GAME,
-    venue: "Mike's Poker Night",
-    address: '456 Card Avenue, Austin, TX',
-    totalBuyIn: 250,
-    cashOut: 190,
-    profit: -60,
-    startTime: new Date('2025-01-05T20:00:00'),
-    endTime: new Date('2025-01-06T01:30:00'),
-    duration: 330,
-    gameType: "No Limit Hold'em",
-    stakes: '1/2',
-    handsPlayed: 112,
-    notes: 'Loose aggressive table, tough to get value',
-    isActive: false,
-    isComplete: true,
-    updateStatus: true,
-    notifyFriends: false,
-    includeInStats: true,
-    createdAt: new Date('2025-01-05T20:00:00'),
-    updatedAt: new Date('2025-01-06T01:30:00')
-  },
-  {
-    id: '7',
-    userId: 'user1',
-    sessionType: SessionType.LIVE_CASINO,
-    venue: 'The Bike Casino',
-    address: '7301 Eastern Ave, Bell Gardens, CA 90201',
-    totalBuyIn: 400,
-    cashOut: 650,
-    profit: 250,
-    startTime: new Date('2025-01-01T16:00:00'),
-    endTime: new Date('2025-01-01T22:30:00'),
-    duration: 390,
-    gameType: "No Limit Hold'em",
-    stakes: '2/3',
-    handsPlayed: 156,
-    notes: 'New Year session, felt good at the table',
-    isActive: false,
-    isComplete: true,
-    updateStatus: true,
-    notifyFriends: true,
-    includeInStats: true,
-    createdAt: new Date('2025-01-01T16:00:00'),
-    updatedAt: new Date('2025-01-01T22:30:00')
-  }
-];
-
-const mockLocationSuggestions: LocationSuggestion[] = [
-  {
-    venue: 'Bellagio Casino',
-    address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109',
-    sessionType: SessionType.LIVE_CASINO,
-    usageCount: 5
-  },
-  {
-    venue: "John's Home Game",
-    address: '123 Poker Street, Austin, TX',
-    sessionType: SessionType.HOME_GAME,
-    usageCount: 3
-  },
-  {
-    venue: 'Commerce Casino',
-    address: '6131 Telegraph Rd, Commerce, CA 90040',
-    sessionType: SessionType.LIVE_CASINO,
-    usageCount: 2
-  }
-];
-
-const mockStats: SessionStats = {
-  totalSessions: 15,
-  totalWinnings: 2450,
-  totalHours: 85.5,
-  hourlyRate: 28.65,
-  biggestWin: 850,
-  biggestLoss: -320,
-  winRate: 0.67,
-  avgSessionLength: 5.7
-};
 
 export const useSessionStore = create<SessionState>((set, get) => ({
   // Initial state
-  sessions: mockSessions,
+  sessions: [],
   activeSession: null,
   locationSuggestions: [],
   sessionStats: null,
@@ -259,29 +58,20 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ isCreating: true, error: null });
     
     try {
-      // Mock API call - replace with actual API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await sessionApi.createSession(sessionData);
       
-      const newSession: PokerSession = {
-        id: Date.now().toString(),
-        userId: 'user1',
-        ...sessionData,
-        totalBuyIn: sessionData.initialBuyIn || 0,
-        startTime: new Date(),
-        isActive: true,
-        isComplete: false,
-        updateStatus: sessionData.updateStatus ?? true,
-        notifyFriends: sessionData.notifyFriends ?? true,
-        includeInStats: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      set(state => ({
-        sessions: [newSession, ...state.sessions],
-        activeSession: newSession,
-        isCreating: false
-      }));
+      if (response.success && response.data) {
+        set(state => ({
+          sessions: [response.data!, ...state.sessions],
+          activeSession: response.data!,
+          isCreating: false
+        }));
+      } else {
+        set({ 
+          error: response.message || 'Failed to create session',
+          isCreating: false 
+        });
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to create session',
@@ -294,27 +84,22 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ isUpdating: true, error: null });
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const response = await sessionApi.endSession(sessionId, endData);
       
-      set(state => ({
-        sessions: state.sessions.map(session => 
-          session.id === sessionId 
-            ? {
-                ...session,
-                ...endData,
-                profit: endData.cashOut - endData.totalBuyIn,
-                endTime: new Date(),
-                isActive: false,
-                isComplete: true,
-                includeInStats: (endData.duration || 0) >= 2,
-                updatedAt: new Date()
-              }
-            : session
-        ),
-        activeSession: state.activeSession?.id === sessionId ? null : state.activeSession,
-        isUpdating: false
-      }));
+      if (response.success && response.data) {
+        set(state => ({
+          sessions: state.sessions.map(session => 
+            session.id === sessionId ? response.data! : session
+          ),
+          activeSession: state.activeSession?.id === sessionId ? null : state.activeSession,
+          isUpdating: false
+        }));
+      } else {
+        set({ 
+          error: response.message || 'Failed to end session',
+          isUpdating: false 
+        });
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to end session',
@@ -327,30 +112,55 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ isUpdating: true, error: null });
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await sessionApi.updateSession(sessionId, updateData);
       
-      set(state => ({
-        sessions: state.sessions.map(session => 
-          session.id === sessionId 
-            ? {
-                ...session,
-                ...updateData,
-                profit: updateData.cashOut && updateData.totalBuyIn 
-                  ? updateData.cashOut - updateData.totalBuyIn 
-                  : session.profit,
-                updatedAt: new Date()
-              }
-            : session
-        ),
-        activeSession: state.activeSession?.id === sessionId 
-          ? { ...state.activeSession, ...updateData, updatedAt: new Date() }
-          : state.activeSession,
-        isUpdating: false
-      }));
+      if (response.success && response.data) {
+        set(state => ({
+          sessions: state.sessions.map(session => 
+            session.id === sessionId ? response.data! : session
+          ),
+          activeSession: state.activeSession?.id === sessionId 
+            ? response.data! : state.activeSession,
+          isUpdating: false
+        }));
+      } else {
+        set({ 
+          error: response.message || 'Failed to update session',
+          isUpdating: false 
+        });
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to update session',
+        isUpdating: false 
+      });
+    }
+  },
+
+  addBuyIn: async (sessionId: string, buyInData: BuyInData) => {
+    set({ isUpdating: true, error: null });
+    
+    try {
+      const response = await sessionApi.addBuyIn(sessionId, buyInData);
+      
+      if (response.success && response.data) {
+        set(state => ({
+          sessions: state.sessions.map(session => 
+            session.id === sessionId ? response.data! : session
+          ),
+          activeSession: state.activeSession?.id === sessionId 
+            ? response.data! : state.activeSession,
+          isUpdating: false
+        }));
+      } else {
+        set({ 
+          error: response.message || 'Failed to add buy-in',
+          isUpdating: false 
+        });
+      }
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to add buy-in',
         isUpdating: false 
       });
     }
@@ -360,14 +170,20 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ isUpdating: true, error: null });
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await sessionApi.deleteSession(sessionId);
       
-      set(state => ({
-        sessions: state.sessions.filter(session => session.id !== sessionId),
-        activeSession: state.activeSession?.id === sessionId ? null : state.activeSession,
-        isUpdating: false
-      }));
+      if (response.success) {
+        set(state => ({
+          sessions: state.sessions.filter(session => session.id !== sessionId),
+          activeSession: state.activeSession?.id === sessionId ? null : state.activeSession,
+          isUpdating: false
+        }));
+      } else {
+        set({ 
+          error: response.message || 'Failed to delete session',
+          isUpdating: false 
+        });
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to delete session',
@@ -376,36 +192,23 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
   },
 
-  fetchSessions: async (filter?: SessionFilter) => {
+  fetchSessions: async (page: number = 1, limit: number = 10, active?: boolean) => {
     set({ isLoading: true, error: null });
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await sessionApi.getSessions(page, limit, active);
       
-      let filteredSessions = [...mockSessions];
-      
-      if (filter) {
-        if (filter.sessionType) {
-          filteredSessions = filteredSessions.filter(s => s.sessionType === filter.sessionType);
-        }
-        if (filter.venue) {
-          filteredSessions = filteredSessions.filter(s => 
-            s.venue?.toLowerCase().includes(filter.venue!.toLowerCase())
-          );
-        }
-        if (filter.dateFrom) {
-          filteredSessions = filteredSessions.filter(s => s.startTime >= filter.dateFrom!);
-        }
-        if (filter.dateTo) {
-          filteredSessions = filteredSessions.filter(s => s.startTime <= filter.dateTo!);
-        }
+      if (response.success && response.data) {
+        set({ 
+          sessions: response.data.sessions,
+          isLoading: false 
+        });
+      } else {
+        set({ 
+          error: response.message || 'Failed to fetch sessions',
+          isLoading: false 
+        });
       }
-      
-      set({ 
-        sessions: filteredSessions,
-        isLoading: false 
-      });
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to fetch sessions',
@@ -414,13 +217,42 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
   },
 
+  fetchSession: async (sessionId: string) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const response = await sessionApi.getSession(sessionId);
+      
+      if (response.success && response.data) {
+        set(state => ({
+          sessions: state.sessions.map(session => 
+            session.id === sessionId ? response.data! : session
+          ),
+          isLoading: false
+        }));
+      } else {
+        set({ 
+          error: response.message || 'Failed to fetch session',
+          isLoading: false 
+        });
+      }
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch session',
+        isLoading: false 
+      });
+    }
+  },
+
   fetchActiveSession: async () => {
     try {
-      // Mock API call to check for active session
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const response = await sessionApi.getSessions(1, 1, true);
       
-      const activeSession = mockSessions.find(s => s.isActive);
-      set({ activeSession: activeSession || null });
+      if (response.success && response.data && response.data.sessions.length > 0) {
+        set({ activeSession: response.data.sessions[0] });
+      } else {
+        set({ activeSession: null });
+      }
     } catch (error) {
       set({ error: 'Failed to fetch active session' });
     }
@@ -428,9 +260,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   fetchLocationSuggestions: async () => {
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 200));
-      set({ locationSuggestions: mockLocationSuggestions });
+      const response = await sessionApi.getLocationSuggestions();
+      
+      if (response.success && response.data) {
+        set({ locationSuggestions: response.data });
+      } else {
+        set({ error: response.message || 'Failed to fetch location suggestions' });
+      }
     } catch (error) {
       set({ error: 'Failed to fetch location suggestions' });
     }
@@ -440,12 +276,19 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      set({ 
-        sessionStats: mockStats,
-        isLoading: false 
-      });
+      const response = await sessionApi.getSessionStats();
+      
+      if (response.success && response.data) {
+        set({ 
+          sessionStats: response.data,
+          isLoading: false 
+        });
+      } else {
+        set({ 
+          error: response.message || 'Failed to fetch stats',
+          isLoading: false 
+        });
+      }
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to fetch stats',

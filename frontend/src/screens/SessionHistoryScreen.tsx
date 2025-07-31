@@ -152,7 +152,7 @@ export default function SessionHistoryScreen({ onSessionSelect }: SessionHistory
     fetchSessions();
   }, []);
 
-  const filteredSessions = sessions.filter(session => {
+  const filteredSessions = sessions?.filter(session => {
     const matchesSearch = !searchQuery || 
       session.venue?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       session.address?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -160,7 +160,7 @@ export default function SessionHistoryScreen({ onSessionSelect }: SessionHistory
     const matchesType = !selectedType || session.sessionType === selectedType;
     
     return matchesSearch && matchesType;
-  });
+  }) || [];
 
   const typeFilters = [
     { value: undefined, label: 'All' },
@@ -189,7 +189,7 @@ export default function SessionHistoryScreen({ onSessionSelect }: SessionHistory
     </View>
   );
 
-  if (isLoading && sessions.length === 0) {
+  if (isLoading && (!sessions || sessions.length === 0)) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007bff" />

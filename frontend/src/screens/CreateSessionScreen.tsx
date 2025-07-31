@@ -57,7 +57,7 @@ export default function CreateSessionScreen({
   const handleLocationSelect = (location: LocationSuggestion) => {
     setFormData(prev => ({
       ...prev,
-      sessionType: location.sessionType,
+      sessionType: location.sessionType as SessionType,
       venue: location.venue,
       address: location.address || '',
     }));

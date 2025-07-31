@@ -6,6 +6,7 @@ import QuickActions from '../shared/components/QuickActions';
 import SwipeableCharts from '../shared/components/SwipeableCharts';
 import PendingGroupSessions from '../shared/components/PendingGroupSessions';
 import { useSessionStore } from '../shared/stores/sessionStore';
+import { useAuthStore } from '../shared/stores/authStore';
 import { 
   DashboardData, 
   FriendActivity, 
@@ -30,6 +31,7 @@ export default function HomeScreen() {
   const [dashboardData] = useState<DashboardData>(mockDashboardData);
   const [quickStats] = useState<QuickStats>(mockQuickStats);
   const { sessions, fetchSessions } = useSessionStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchSessions();
@@ -95,7 +97,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View style={styles.greeting}>
           <Text style={styles.greetingText}>Good evening,</Text>
-          <Text style={styles.userName}>John</Text>
+          <Text style={styles.userName}>{user?.firstName || 'User'}</Text>
         </View>
         
         <View style={styles.headerStats}>
